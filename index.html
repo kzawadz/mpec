@@ -90,6 +90,99 @@
       background: var(--panel);
       margin: 18px 0;
     }
+    .decision-block {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .decision-block h3 {
+      margin-top: 0;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 14px;
+    }
+    .metric {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 11px 12px;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 18px;
+      line-height: 1.16;
+    }
+    .bar-list {
+      display: grid;
+      gap: 10px;
+      margin: 12px 0 14px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 190px minmax(160px, 1fr) 120px;
+      gap: 12px;
+      align-items: center;
+    }
+    .bar-label {
+      color: #334155;
+      font-weight: 650;
+    }
+    .bar-track {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #dfe5ec;
+    }
+    .bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+    .bar-fill.muted {
+      background: #8392a5;
+    }
+    .bar-fill.good {
+      background: var(--save);
+    }
+    .bar-value {
+      text-align: right;
+      font-weight: 700;
+    }
+    .decision-table {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .decision-table table {
+      margin: 0;
+      min-width: 760px;
+    }
+    .decision-table th,
+    .decision-table td {
+      text-align: left;
+    }
+    .decision-table td:nth-child(2),
+    .decision-table td:nth-child(3) {
+      text-align: right;
+    }
+    .decision-table th:nth-child(2),
+    .decision-table th:nth-child(3) {
+      text-align: right;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -165,9 +258,13 @@
     @media (max-width: 860px) {
       .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .split { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bar-row { grid-template-columns: 1fr; gap: 5px; }
+      .bar-value { text-align: left; }
     }
     @media (max-width: 560px) {
       .cards { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr; }
       th, td { padding: 8px; }
     }
   </style>
@@ -190,7 +287,73 @@
 
     <div class="note">
       <p><strong>Wniosek liczbowy:</strong> przy takim samym zużyciu ciepła i tej samej mocy zamówionej taryfa S1-WO daje ok. <strong>75 920,00 zł brutto</strong> mniej w 12 miesięcy niż S1-WIP. Różnica wynika wyłącznie z niższych stawek przesyłowych w S1-WO: 14,00 zł/GJ mniej opłaty zmiennej oraz 3 542,84 zł/MW/m-c mniej opłaty stałej za przesył.</p>
-      <p><strong>Moc zamówiona:</strong> dane z faktur wskazują, że obecna moc 0,510 MW prawdopodobnie mogłaby być zmniejszona, szczególnie po stronie CO. Najwyższe miesięczne zużycie w analizowanym okresie wyniosło 526,3 GJ w styczniu 2026, co odpowiada średniej mocy ok. 0,210 MW, czyli ok. 41% obecnej mocy zamówionej. Po odjęciu orientacyjnego letniego zużycia CWU średnia moc grzewcza w najzimniejszym miesiącu wynosi ok. 0,18-0,19 MW wobec 0,340 MW zamówionych dla CO. Rozsądnym wariantem do weryfikacji z MPEC lub projektantem jest redukcja CO do ok. 0,289-0,306 MW, przy pozostawieniu CWU 0,170 MW, czyli łącznie ok. 0,459-0,476 MW. Redukcja całej mocy o 10%, z 0,510 MW do 0,459 MW, dawałaby oszczędność opłaty stałej ok. 18 879,52 zł brutto rocznie przy S1-WIP albo 16 212,61 zł brutto rocznie przy S1-WO. Przed zmianą trzeba jednak potwierdzić z MPEC maksymalną moc chwilową/godzinową z licznika oraz skutki umowne redukcji, ponieważ OCR umowy wskazuje ograniczenia dla zmniejszenia mocy powyżej 10%.</p>
+
+      <section class="decision-block" aria-labelledby="ordered-power-heading">
+        <h3 id="ordered-power-heading">Moc zamówiona</h3>
+        <p>Dane z faktur wskazują, że obecna moc 0,510 MW prawdopodobnie mogłaby być zmniejszona, szczególnie po stronie CO. Decyzja wymaga jednak potwierdzenia maksymalnej mocy chwilowej/godzinowej z licznika oraz skutków umownych redukcji.</p>
+        <div class="metric-grid" aria-label="Kluczowe wartości dla mocy zamówionej">
+          <div class="metric"><span>Obecna moc zamówiona</span><strong>0,510 MW</strong></div>
+          <div class="metric"><span>Najwyższa średnia z faktur</span><strong>0,210 MW</strong></div>
+          <div class="metric"><span>Użycie obecnej mocy</span><strong>ok. 41%</strong></div>
+          <div class="metric"><span>Wariant do weryfikacji</span><strong>0,459-0,476 MW</strong></div>
+        </div>
+        <div class="bar-list" aria-label="Porównanie mocy">
+          <div class="bar-row">
+            <div class="bar-label">Obecna moc</div>
+            <div class="bar-track"><span class="bar-fill" style="width:100%"></span></div>
+            <div class="bar-value">0,510 MW</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Najwyższa średnia</div>
+            <div class="bar-track"><span class="bar-fill muted" style="width:41%"></span></div>
+            <div class="bar-value">0,210 MW</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Redukcja 10%</div>
+            <div class="bar-track"><span class="bar-fill good" style="width:90%"></span></div>
+            <div class="bar-value">0,459 MW</div>
+          </div>
+        </div>
+        <p>Po odjęciu orientacyjnego letniego zużycia CWU średnia moc grzewcza w najzimniejszym miesiącu wynosi ok. 0,18-0,19 MW wobec 0,340 MW zamówionych dla CO. Redukcja całej mocy o 10% dawałaby oszczędność opłaty stałej ok. 18 879,52 zł brutto rocznie przy S1-WIP albo 16 212,61 zł brutto rocznie przy S1-WO. OCR umowy wskazuje ograniczenia dla zmniejszenia mocy powyżej 10%, więc ten próg warto traktować jako pierwszy bezpieczny wariant do rozmowy z MPEC.</p>
+      </section>
+
+      <section class="decision-block" aria-labelledby="node-roi-heading">
+        <h3 id="node-roi-heading">Remont węzła i ROI</h3>
+        <p>Porównanie zakłada obecną moc 0,510 MW, roczne koszty z prognozy oraz remont węzła na koszt wspólnoty za 100 000 zł. Dla własnego węzła przyjęto konserwatywną rezerwę 15 000 zł brutto rocznie na obsługę, konserwację, energię i drobne naprawy.</p>
+        <div class="metric-grid" aria-label="Wyniki ROI">
+          <div class="metric"><span>Roczna korzyść po obsłudze</span><strong>60 920 zł</strong></div>
+          <div class="metric"><span>Prosty zwrot inwestycji</span><strong>ok. 1,6 roku</strong></div>
+          <div class="metric"><span>Prosty roczny ROI</span><strong>ok. 60,9%</strong></div>
+          <div class="metric"><span>Efekt po 5 latach</span><strong>ok. 204 600 zł</strong></div>
+        </div>
+        <div class="bar-list" aria-label="Porównanie rocznych kosztów scenariuszy">
+          <div class="bar-row">
+            <div class="bar-label">MPEC + S1-WIP</div>
+            <div class="bar-track"><span class="bar-fill" style="width:100%"></span></div>
+            <div class="bar-value">574 852 zł/rok</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Wspólnota + S1-WO</div>
+            <div class="bar-track"><span class="bar-fill good" style="width:89%"></span></div>
+            <div class="bar-value">513 932 zł/rok</div>
+          </div>
+        </div>
+        <div class="decision-table">
+          <table>
+            <thead>
+              <tr><th>Pozycja</th><th>Scenariusz 1: MPEC + S1-WIP</th><th>Scenariusz 2: wspólnota + S1-WO</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Nakład początkowy</td><td>0 zł</td><td>100 000 zł</td></tr>
+              <tr><td>Roczny koszt ciepła</td><td>574 852,09 zł</td><td>498 932,08 zł</td></tr>
+              <tr><td>Obsługa i konserwacja węzła</td><td>w taryfie/po stronie MPEC</td><td>15 000,00 zł rocznie</td></tr>
+              <tr><td>Roczny koszt porównawczy</td><td>574 852,09 zł</td><td>513 932,08 zł</td></tr>
+              <tr><td>Roczna przewaga scenariusza 2</td><td>-</td><td><strong>60 920,00 zł</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Finansowo scenariusz 2 jest wyraźnie korzystniejszy, o ile MPEC formalnie dopuści kwalifikację S1-WO, koszt remontu rzeczywiście zamknie się w 100 000 zł, a wspólnota zaakceptuje odpowiedzialność za utrzymanie i ryzyko awarii własnego węzła.</p>
+      </section>
     </div>
 
     <h2>Założenia</h2>
