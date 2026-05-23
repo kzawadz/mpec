@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analiza taryfy MPEC S1-WIP vs S1-WO</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #5f6b7a;
+      --line: #d7dde5;
+      --panel: #f6f8fb;
+      --wip: #b4483a;
+      --wo: #26736a;
+      --save: #2d5d90;
+      --accent: #263f6b;
+      --bg: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    header {
+      background: #eef2f7;
+      border-bottom: 1px solid var(--line);
+    }
+    .wrap {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+    header .wrap {
+      padding: 34px 0 28px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 34px 0 14px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; }
+    .lead {
+      max-width: 880px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    main .wrap {
+      padding: 24px 0 44px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 22px 0 26px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fff;
+    }
+    .card .label {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .card .value {
+      margin-top: 8px;
+      font-weight: 700;
+      font-size: clamp(22px, 2.6vw, 31px);
+      line-height: 1.08;
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      background: var(--panel);
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child,
+    th:last-child, td:last-child {
+      text-align: left;
+    }
+    th {
+      color: #334155;
+      background: #f2f5f9;
+      font-weight: 650;
+    }
+    .table-scroll {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 12px 0 22px;
+    }
+    .table-scroll table {
+      margin: 0;
+      min-width: 760px;
+    }
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0 22px;
+      background: #fff;
+    }
+    .chart {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .axis { stroke: #7b8794; stroke-width: 1; }
+    .grid { stroke: #dfe5ec; stroke-width: 1; }
+    .tick { fill: #52606d; font-size: 12px; }
+    .legend text { fill: #334155; font-size: 13px; }
+    .bar-wip { fill: var(--wip); }
+    .bar-wo { fill: var(--wo); }
+    .bar-saving { fill: var(--save); }
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+      gap: 20px;
+      align-items: start;
+    }
+    ul {
+      margin: 8px 0 18px;
+      padding-left: 20px;
+    }
+    li { margin: 5px 0; }
+    code {
+      background: #edf1f5;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    footer {
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding: 18px 0 28px;
+      font-size: 13px;
+    }
+    @media (max-width: 860px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .split { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .cards { grid-template-columns: 1fr; }
+      th, td { padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Analiza kosztów MPEC: S1-WIP vs S1-WO</h1>
+    <p class="lead">Estymacja dla Wspólnoty Mieszkaniowej Wesele 6-24 na okres maj 2026 - kwiecień 2027, na podstawie taryfy MPEC netto obowiązującej od 01.05.2026 oraz zużycia z faktur historycznych.</p>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <section class="cards" aria-label="Podsumowanie">
+      <div class="card"><div class="label">S1-WIP brutto</div><div class="value">574 852,09 zł</div></div>
+      <div class="card"><div class="label">S1-WO brutto</div><div class="value">498 932,08 zł</div></div>
+      <div class="card"><div class="label">Różnica brutto</div><div class="value">75 920,00 zł</div></div>
+      <div class="card"><div class="label">Oszczędność</div><div class="value">13,2%</div></div>
+    </section>
+
+    <div class="note">
+      <p><strong>Wniosek liczbowy:</strong> przy takim samym zużyciu ciepła i tej samej mocy zamówionej taryfa S1-WO daje ok. <strong>75 920,00 zł brutto</strong> mniej w 12 miesięcy niż S1-WIP. Różnica wynika wyłącznie z niższych stawek przesyłowych w S1-WO: 14,00 zł/GJ mniej opłaty zmiennej oraz 3 542,84 zł/MW/m-c mniej opłaty stałej za przesył.</p>
+    </div>
+
+    <h2>Założenia</h2>
+    <ul>
+      <li>Taryfy w pliku <code>taryfa.xls</code> są stawkami netto; VAT przyjęto 23%, zgodnie z fakturami.</li>
+      <li>Moc zamówiona przyjęta do prognozy: <strong>0,510 MW</strong>. Źródło: pełna faktura stała <code>MPEC rachunki/2025 12 staˆa.pdf</code>, obejmująca 10 obiektów Wesele.</li>
+      <li>Zużycie GJ dla każdego prognozowanego miesiąca przyjęto z najnowszej dostępnej faktury dla tego samego miesiąca kalendarzowego.</li>
+      <li>S1-WO potraktowano jako scenariusz porównawczy. Kwalifikacja do tej grupy wymaga statusu „węzeł cieplny odbiorcy”; raport nie przesądza spełnienia warunków formalnych.</li>
+      <li>Nie uwzględniono przyszłych zmian taryfy, zmian VAT, korekt, dopłat osłonowych ani zmiany zużycia wynikającej z pogody lub zachowań odbiorców.</li>
+    </ul>
+
+    <h2>Stawki z taryfy</h2>
+    <div class="table-scroll">
+      <table><thead><tr><th>Grupa</th><th>Ciepło</th><th>Przesył zmienny</th><th>Moc wytwarzanie</th><th>Przesył stały</th></tr></thead><tbody><tr><td><strong>S1-WIP</strong></td><td>75,50 zł/GJ</td><td>34,24 zł/GJ</td><td>17 671,09 zł/MW/m-c</td><td>7 409,31 zł/MW/m-c</td></tr><tr><td><strong>S1-WO</strong></td><td>75,50 zł/GJ</td><td>20,24 zł/GJ</td><td>17 671,09 zł/MW/m-c</td><td>3 866,47 zł/MW/m-c</td></tr></tbody></table>
+    </div>
+
+    <h2>Prognoza miesięczna brutto</h2>
+    <div class="chart-box"><svg class="chart" viewBox="0 0 980 360" role="img" aria-label="Porównanie miesięcznych kosztów brutto">
+<line x1="58" y1="292" x2="958" y2="292" class="axis"/>
+<line x1="58" y1="28" x2="58" y2="292" class="axis"/>
+<line x1="58" y1="292.0" x2="958" y2="292.0" class="grid"/>
+<text x="50" y="296.0" text-anchor="end" class="tick">0,00</text>
+<line x1="58" y1="226.0" x2="958" y2="226.0" class="grid"/>
+<text x="50" y="230.0" text-anchor="end" class="tick">22 500,00</text>
+<line x1="58" y1="160.0" x2="958" y2="160.0" class="grid"/>
+<text x="50" y="164.0" text-anchor="end" class="tick">45 000,00</text>
+<line x1="58" y1="94.0" x2="958" y2="94.0" class="grid"/>
+<text x="50" y="98.0" text-anchor="end" class="tick">67 500,00</text>
+<line x1="58" y1="28.0" x2="958" y2="28.0" class="grid"/>
+<text x="50" y="32.0" text-anchor="end" class="tick">90 000,00</text>
+<rect x="69.6" y="189.6" width="24.0" height="102.4" class="bar-wip"><title>maj 2026 S1-WIP: 34 913,62 zł brutto</title></rect>
+<rect x="97.4" y="203.3" width="24.0" height="88.7" class="bar-wo"><title>maj 2026 S1-WO: 30 244,24 zł brutto</title></rect>
+<text x="95.5" y="312" text-anchor="middle" class="tick">maj</text>
+<text x="95.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="144.6" y="216.0" width="24.0" height="76.0" class="bar-wip"><title>cze 2026 S1-WIP: 25 910,44 zł brutto</title></rect>
+<rect x="172.4" y="226.3" width="24.0" height="65.7" class="bar-wo"><title>cze 2026 S1-WO: 22 389,63 zł brutto</title></rect>
+<text x="170.5" y="312" text-anchor="middle" class="tick">cze</text>
+<text x="170.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="219.6" y="222.4" width="24.0" height="69.6" class="bar-wip"><title>lip 2026 S1-WIP: 23 737,26 zł brutto</title></rect>
+<rect x="247.4" y="231.9" width="24.0" height="60.1" class="bar-wo"><title>lip 2026 S1-WO: 20 493,69 zł brutto</title></rect>
+<text x="245.5" y="312" text-anchor="middle" class="tick">lip</text>
+<text x="245.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="294.6" y="223.5" width="24.0" height="68.5" class="bar-wip"><title>sie 2026 S1-WIP: 23 345,82 zł brutto</title></rect>
+<rect x="322.4" y="232.9" width="24.0" height="59.1" class="bar-wo"><title>sie 2026 S1-WO: 20 152,19 zł brutto</title></rect>
+<text x="320.5" y="312" text-anchor="middle" class="tick">sie</text>
+<text x="320.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="369.6" y="211.2" width="24.0" height="80.8" class="bar-wip"><title>wrz 2026 S1-WIP: 27 557,20 zł brutto</title></rect>
+<rect x="397.4" y="222.1" width="24.0" height="69.9" class="bar-wo"><title>wrz 2026 S1-WO: 23 826,30 zł brutto</title></rect>
+<text x="395.5" y="312" text-anchor="middle" class="tick">wrz</text>
+<text x="395.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="444.6" y="153.2" width="24.0" height="138.8" class="bar-wip"><title>paź 2026 S1-WIP: 47 331,80 zł brutto</title></rect>
+<rect x="472.4" y="171.5" width="24.0" height="120.5" class="bar-wo"><title>paź 2026 S1-WO: 41 078,17 zł brutto</title></rect>
+<text x="470.5" y="312" text-anchor="middle" class="tick">paź</text>
+<text x="470.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="519.6" y="123.0" width="24.0" height="169.0" class="bar-wip"><title>lis 2026 S1-WIP: 57 617,29 zł brutto</title></rect>
+<rect x="547.4" y="145.2" width="24.0" height="146.8" class="bar-wo"><title>lis 2026 S1-WO: 50 051,50 zł brutto</title></rect>
+<text x="545.5" y="312" text-anchor="middle" class="tick">lis</text>
+<text x="545.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="594.6" y="69.1" width="24.0" height="222.9" class="bar-wip"><title>gru 2026 S1-WIP: 76 001,59 zł brutto</title></rect>
+<rect x="622.4" y="98.1" width="24.0" height="193.9" class="bar-wo"><title>gru 2026 S1-WO: 66 090,44 zł brutto</title></rect>
+<text x="620.5" y="312" text-anchor="middle" class="tick">gru</text>
+<text x="620.5" y="327" text-anchor="middle" class="tick">2026</text>
+<rect x="669.6" y="37.5" width="24.0" height="254.5" class="bar-wip"><title>sty 2027 S1-WIP: 86 773,01 zł brutto</title></rect>
+<rect x="697.4" y="70.6" width="24.0" height="221.4" class="bar-wo"><title>sty 2027 S1-WO: 75 487,70 zł brutto</title></rect>
+<text x="695.5" y="312" text-anchor="middle" class="tick">sty</text>
+<text x="695.5" y="327" text-anchor="middle" class="tick">2027</text>
+<rect x="744.6" y="77.3" width="24.0" height="214.7" class="bar-wip"><title>lut 2027 S1-WIP: 73 207,50 zł brutto</title></rect>
+<rect x="772.4" y="105.3" width="24.0" height="186.7" class="bar-wo"><title>lut 2027 S1-WO: 63 652,80 zł brutto</title></rect>
+<text x="770.5" y="312" text-anchor="middle" class="tick">lut</text>
+<text x="770.5" y="327" text-anchor="middle" class="tick">2027</text>
+<rect x="819.6" y="119.9" width="24.0" height="172.1" class="bar-wip"><title>mar 2027 S1-WIP: 58 670,14 zł brutto</title></rect>
+<rect x="847.4" y="142.5" width="24.0" height="149.5" class="bar-wo"><title>mar 2027 S1-WO: 50 970,03 zł brutto</title></rect>
+<text x="845.5" y="312" text-anchor="middle" class="tick">mar</text>
+<text x="845.5" y="327" text-anchor="middle" class="tick">2027</text>
+<rect x="894.6" y="175.3" width="24.0" height="116.7" class="bar-wip"><title>kwi 2027 S1-WIP: 39 786,41 zł brutto</title></rect>
+<rect x="922.4" y="190.8" width="24.0" height="101.2" class="bar-wo"><title>kwi 2027 S1-WO: 34 495,38 zł brutto</title></rect>
+<text x="920.5" y="312" text-anchor="middle" class="tick">kwi</text>
+<text x="920.5" y="327" text-anchor="middle" class="tick">2027</text>
+<g class="legend">
+<rect x="704" y="16" width="14" height="14" class="bar-wip"/><text x="724" y="28">S1-WIP</text>
+<rect x="804" y="16" width="14" height="14" class="bar-wo"/><text x="824" y="28">S1-WO</text>
+</g></svg></div>
+    <div class="table-scroll">
+      <table><thead><tr><th>Miesiąc</th><th>Zużycie</th><th>Źródło zużycia</th><th>S1-WIP brutto</th><th>S1-WO brutto</th><th>Różnica</th></tr></thead><tbody><tr><td>maj 2026</td><td>142,1 GJ</td><td>2025-05</td><td>34 913,62 zł</td><td>30 244,24 zł</td><td><strong>4 669,39 zł</strong></td></tr><tr><td>cze 2026</td><td>75,4 GJ</td><td>2025-06</td><td>25 910,44 zł</td><td>22 389,63 zł</td><td><strong>3 520,81 zł</strong></td></tr><tr><td>lip 2026</td><td>59,3 GJ</td><td>2025-07</td><td>23 737,26 zł</td><td>20 493,69 zł</td><td><strong>3 243,57 zł</strong></td></tr><tr><td>sie 2026</td><td>56,4 GJ</td><td>2025-08</td><td>23 345,82 zł</td><td>20 152,19 zł</td><td><strong>3 193,63 zł</strong></td></tr><tr><td>wrz 2026</td><td>87,6 GJ</td><td>2025-09</td><td>27 557,20 zł</td><td>23 826,30 zł</td><td><strong>3 730,90 zł</strong></td></tr><tr><td>paź 2026</td><td>234,1 GJ</td><td>2025-10</td><td>47 331,80 zł</td><td>41 078,17 zł</td><td><strong>6 253,63 zł</strong></td></tr><tr><td>lis 2026</td><td>310,3 GJ</td><td>2025-11</td><td>57 617,29 zł</td><td>50 051,50 zł</td><td><strong>7 565,79 zł</strong></td></tr><tr><td>gru 2026</td><td>446,5 GJ</td><td>2025-12</td><td>76 001,59 zł</td><td>66 090,44 zł</td><td><strong>9 911,15 zł</strong></td></tr><tr><td>sty 2027</td><td>526,3 GJ</td><td>2026-01</td><td>86 773,01 zł</td><td>75 487,70 zł</td><td><strong>11 285,31 zł</strong></td></tr><tr><td>lut 2027</td><td>425,8 GJ</td><td>2026-02</td><td>73 207,50 zł</td><td>63 652,80 zł</td><td><strong>9 554,70 zł</strong></td></tr><tr><td>mar 2027</td><td>318,1 GJ</td><td>2025-03</td><td>58 670,14 zł</td><td>50 970,03 zł</td><td><strong>7 700,11 zł</strong></td></tr><tr><td>kwi 2027</td><td>178,2 GJ</td><td>2025-04</td><td>39 786,41 zł</td><td>34 495,38 zł</td><td><strong>5 291,03 zł</strong></td></tr></tbody></table>
+    </div>
+
+    <h2>Skąd bierze się różnica</h2>
+    <div class="chart-box"><svg class="chart small-chart" viewBox="0 0 980 240" role="img" aria-label="Miesięczna różnica brutto">
+<line x1="58" y1="182" x2="958" y2="182" class="axis"/>
+<line x1="58" y1="22" x2="58" y2="182" class="axis"/>
+<line x1="58" y1="182.0" x2="958" y2="182.0" class="grid"/>
+<text x="50" y="186.0" text-anchor="end" class="tick">0,00</text>
+<line x1="58" y1="128.7" x2="958" y2="128.7" class="grid"/>
+<text x="50" y="132.7" text-anchor="end" class="tick">5 000,00</text>
+<line x1="58" y1="75.3" x2="958" y2="75.3" class="grid"/>
+<text x="50" y="79.3" text-anchor="end" class="tick">10 000,00</text>
+<line x1="58" y1="22.0" x2="958" y2="22.0" class="grid"/>
+<text x="50" y="26.0" text-anchor="end" class="tick">15 000,00</text>
+<rect x="74.5" y="132.2" width="42.0" height="49.8" class="bar-saving"><title>maj 2026: 4 669,39 zł brutto mniej w S1-WO</title></rect>
+<text x="95.5" y="202" text-anchor="middle" class="tick">maj</text>
+<rect x="149.5" y="144.4" width="42.0" height="37.6" class="bar-saving"><title>cze 2026: 3 520,81 zł brutto mniej w S1-WO</title></rect>
+<text x="170.5" y="202" text-anchor="middle" class="tick">cze</text>
+<rect x="224.5" y="147.4" width="42.0" height="34.6" class="bar-saving"><title>lip 2026: 3 243,57 zł brutto mniej w S1-WO</title></rect>
+<text x="245.5" y="202" text-anchor="middle" class="tick">lip</text>
+<rect x="299.5" y="147.9" width="42.0" height="34.1" class="bar-saving"><title>sie 2026: 3 193,63 zł brutto mniej w S1-WO</title></rect>
+<text x="320.5" y="202" text-anchor="middle" class="tick">sie</text>
+<rect x="374.5" y="142.2" width="42.0" height="39.8" class="bar-saving"><title>wrz 2026: 3 730,90 zł brutto mniej w S1-WO</title></rect>
+<text x="395.5" y="202" text-anchor="middle" class="tick">wrz</text>
+<rect x="449.5" y="115.3" width="42.0" height="66.7" class="bar-saving"><title>paź 2026: 6 253,63 zł brutto mniej w S1-WO</title></rect>
+<text x="470.5" y="202" text-anchor="middle" class="tick">paź</text>
+<rect x="524.5" y="101.3" width="42.0" height="80.7" class="bar-saving"><title>lis 2026: 7 565,79 zł brutto mniej w S1-WO</title></rect>
+<text x="545.5" y="202" text-anchor="middle" class="tick">lis</text>
+<rect x="599.5" y="76.3" width="42.0" height="105.7" class="bar-saving"><title>gru 2026: 9 911,15 zł brutto mniej w S1-WO</title></rect>
+<text x="620.5" y="202" text-anchor="middle" class="tick">gru</text>
+<rect x="674.5" y="61.6" width="42.0" height="120.4" class="bar-saving"><title>sty 2027: 11 285,31 zł brutto mniej w S1-WO</title></rect>
+<text x="695.5" y="202" text-anchor="middle" class="tick">sty</text>
+<rect x="749.5" y="80.1" width="42.0" height="101.9" class="bar-saving"><title>lut 2027: 9 554,70 zł brutto mniej w S1-WO</title></rect>
+<text x="770.5" y="202" text-anchor="middle" class="tick">lut</text>
+<rect x="824.5" y="99.9" width="42.0" height="82.1" class="bar-saving"><title>mar 2027: 7 700,11 zł brutto mniej w S1-WO</title></rect>
+<text x="845.5" y="202" text-anchor="middle" class="tick">mar</text>
+<rect x="899.5" y="125.6" width="42.0" height="56.4" class="bar-saving"><title>kwi 2027: 5 291,03 zł brutto mniej w S1-WO</title></rect>
+<text x="920.5" y="202" text-anchor="middle" class="tick">kwi</text>
+</svg></div>
+    <div class="split">
+      <div>
+        <h3>Rocznie netto</h3>
+        <ul>
+          <li>S1-WIP: część stała 153 492,05 zł, część zmienna 313 867,37 zł.</li>
+          <li>S1-WO: część stała 131 809,87 zł, część zmienna 273 825,97 zł.</li>
+          <li>Łączne prognozowane zużycie: 2 860,1 GJ.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Wzór naliczania</h3>
+        <p>Koszt netto miesiąca = moc MW × miesięczna rata mocy wytwarzania + moc MW × miesięczna rata stała przesyłu + GJ × cena ciepła + GJ × stawka zmienna przesyłu. Koszt brutto = netto × 1,23.</p>
+      </div>
+    </div>
+
+    <h2>Dane z faktur</h2>
+    <h3>Opłaty zmienne</h3>
+    <div class="table-scroll">
+      <table><thead><tr><th>Okres</th><th>Zużycie</th><th>Faktura brutto</th><th>Plik</th></tr></thead><tbody><tr><td>2024-12</td><td>418,3 GJ</td><td>42 025,09 zł</td><td>MPEC rachunki/2024 12 ZMIENNA.pdf</td></tr><tr><td>2025-01</td><td>414,0 GJ</td><td>43 792,92 zł</td><td>MPEC rachunki/2025 01 ZMIENNA.pdf</td></tr><tr><td>2025-02</td><td>411,5 GJ</td><td>43 528,47 zł</td><td>MPEC rachunki/2025 02 ZMIENNA.pdf</td></tr><tr><td>2025-03</td><td>318,1 GJ</td><td>33 648,62 zł</td><td>MPEC rachunki/2025 03 ZMIENNA.pdf</td></tr><tr><td>2025-04</td><td>178,2 GJ</td><td>18 849,99 zł</td><td>MPEC rachunki/2025 04 ZMIENNA.pdf</td></tr><tr><td>2025-05</td><td>142,1 GJ</td><td>15 031,34 zł</td><td>MPEC rachunki/2025 05 zmienna.pdf</td></tr><tr><td>2025-06</td><td>75,4 GJ</td><td>7 975,81 zł</td><td>MPEC rachunki/2025 06 zmienna.pdf</td></tr><tr><td>2025-07</td><td>59,3 GJ</td><td>7 733,72 zł</td><td>MPEC rachunki/2025 07 zmienna.pdf</td></tr><tr><td>2025-08</td><td>56,4 GJ</td><td>7 355,53 zł</td><td>MPEC rachunki/2025 08 zmienna.pdf</td></tr><tr><td>2025-09</td><td>87,6 GJ</td><td>11 424,52 zł</td><td>MPEC rachunki/2025 09 zmienna.pdf</td></tr><tr><td>2025-10</td><td>234,1 GJ</td><td>30 530,59 zł</td><td>MPEC rachunki/2025 10 zmienna.pdf</td></tr><tr><td>2025-11</td><td>310,3 GJ</td><td>40 325,07 zł</td><td>MPEC rachunki/2025 11 zmienna.pdf</td></tr><tr><td>2025-12</td><td>446,5 GJ</td><td>57 956,56 zł</td><td>MPEC rachunki/2025 12 zmienna.pdf</td></tr><tr><td>2026-01</td><td>526,3 GJ</td><td>69 926,63 zł</td><td>MPEC rachunki/2026 01 zmienna.pdf</td></tr><tr><td>2026-02</td><td>425,8 GJ</td><td>56 573,74 zł</td><td>MPEC rachunki/2026 02 zmienna.pdf</td></tr></tbody></table>
+    </div>
+    <h3>Opłaty stałe</h3>
+    <div class="table-scroll">
+      <table><thead><tr><th>Okres</th><th>Moc z faktury</th><th>Liczba obiektów</th><th>Faktura brutto</th><th>Plik</th></tr></thead><tbody><tr><td>2025-01</td><td>0,510 MW</td><td>10</td><td>11 303,80 zł</td><td>MPEC rachunki/2025 01 STAA.pdf</td></tr><tr><td>2025-02</td><td>0,510 MW</td><td>10</td><td>11 303,80 zł</td><td>MPEC rachunki/2025 02 STAA.pdf</td></tr><tr><td>2025-03</td><td>0,510 MW</td><td>10</td><td>11 303,80 zł</td><td>MPEC rachunki/2025 03 STAA.pdf</td></tr><tr><td>2025-04</td><td>0,510 MW</td><td>10</td><td>11 303,80 zł</td><td>MPEC rachunki/2025 04 STAA.pdf</td></tr><tr><td>2025-05</td><td>0,510 MW</td><td>10</td><td>11 303,80 zł</td><td>MPEC rachunki/2025 05 STAA.pdf</td></tr><tr><td>2025-06</td><td>0,510 MW</td><td>10</td><td>11 303,80 zł</td><td>MPEC rachunki/2025 06 staˆa.pdf</td></tr><tr><td>2025-07</td><td>0,510 MW</td><td>10</td><td>13 945,80 zł</td><td>MPEC rachunki/2025 07 staˆa.pdf</td></tr><tr><td>2025-08</td><td>0,510 MW</td><td>10</td><td>13 945,80 zł</td><td>MPEC rachunki/2025 08 staˆa.pdf</td></tr><tr><td>2025-09</td><td>0,510 MW</td><td>10</td><td>13 945,80 zł</td><td>MPEC rachunki/2025 09 staˆa.pdf</td></tr><tr><td>2025-10</td><td>0,510 MW</td><td>10</td><td>13 945,80 zł</td><td>MPEC rachunki/2025 10 staˆa.pdf</td></tr><tr><td>2025-11</td><td>0,510 MW</td><td>10</td><td>13 900,60 zł</td><td>MPEC rachunki/2025 11 staˆa.pdf</td></tr><tr><td>2025-12</td><td>0,510 MW</td><td>10</td><td>13 884,20 zł</td><td>MPEC rachunki/2025 12 staˆa.pdf</td></tr><tr><td>2026-01</td><td>0,051 MW</td><td>1</td><td>1 489,47 zł</td><td>MPEC rachunki/2026 01 staˆ bud 24.pdf</td></tr><tr><td>2026-02</td><td>0,051 MW</td><td>1</td><td>1 489,47 zł</td><td>MPEC rachunki/2026 02 staˆa bud 24.pdf</td></tr><tr><td>2026-03</td><td>0,051 MW</td><td>1</td><td>1 504,07 zł</td><td>MPEC rachunki/2026 03 staˆa bud 24.pdf</td></tr></tbody></table>
+    </div>
+
+    <h2>Umowa</h2>
+    <p>Plik <code>umowa.pdf</code> jest skanem bez warstwy tekstowej. Skrypt wykonał pomocniczy OCR, ale do obliczeń wykorzystano wartości liczbowe z faktur, bo są one tekstowe i jednoznaczne.</p>
+    <p>OCR wskazuje, że umowa dotyczy przebudowy węzła cieplnego przy ul. Wesele 18 oraz zawiera fragment o węźle stanowiącym własność Dostawcy. To jest spójne z obecną grupą S1-WIP na fakturach. Przejście na S1-WO powinno być traktowane jako wariant wymagający zmiany statusu lub kwalifikacji węzła; w estymacji nie doliczono kosztów przejęcia, serwisu, utrzymania ani ryzyk technicznych węzła po stronie wspólnoty.</p>
+    <ul><li>UMOWA RMI/ 6 /2026</li><li>Przebudowa wezia ciepInego</li><li>Wspolnota Mieszkaniowa ,,Wesele 6 — 24” Krakow, ul. Wesele 6, 30-127 KRAKOW</li><li>Umowe zawiera sie z uwzglednieniem przepisow ustawy z dnia 10 kwietnia 1997 r.- Prawo energetyczne</li><li>1. Przedmiotem niniejszej umowy jest okreslenie obowiazkéw Stron zwiazanych z przebudowa weztia</li><li>ciepInego stanowigcego wiasnosé Dostawcy, usytuowanego w budynku ul. Wesele 18</li><li>2. WielkoS¢ mocy ciepinej wezta wynosi c.o. = 340kW, c.w.u. = 170kW i stuzy do doboru urzadzen.</li><li>Jednoczesnie wielkoSé stanowi podstawe do okreslenia mocy zaméwionej w umowie sprzedazy</li><li>1. W celu realizacji przedmiotu umowy, Dostawca zobowiazuje sie do wykonania, w terminie i na</li><li>warunkach okreslonych niniejszq umowa:</li><li>1.1. projektu_ wykonawezego kompaktowego, wymiennikowego wezta ciepInego w obiekcie Odbiorcy</li><li>zawierajacego: technologie, instalacje elektryczna i AKPiA oraz instrukcje obstugi wezta i wykonania,</li><li>przebudowa wezla ciepInego ] Ql A</li><li>4.2. demontazu istniejacego wezia ciepInego do rozdzielaczy, zgodnie z projektem,</li></ul>
+
+    <h2>Uwagi techniczne</h2>
+    <ul>
+      <li>Pominięto duplikat MPEC rachunki/2025 staˆa 12.pdf; zachowano MPEC rachunki/2025 12 staˆa.pdf.</li>
+      <li>Wszystkie rozpoznane faktury stałe i zmienne zostały przetworzone poprawnie.</li>
+      <li>W katalogu faktury stałe za 2026 obejmują tylko obiekt Wesele 24, dlatego nie były używane jako źródło mocy całej wspólnoty. Do porównania całej wspólnoty przyjęto pełną moc 0,510 MW z faktur za 2025.</li>
+    </ul>
+
+
+    <h2>Walidacja poprawności</h2>
+    <div class="note validation-pass">
+      <p><strong>Status testu: PASS</strong>. Wykonano 1341 kontroli: PASS 1341, WARN 0, FAIL 0.</p>
+      <p>Sprawdzono zgodność pozycji faktur z sumami netto/VAT/brutto, kompletność miesięcy źródłowych, deduplikację, moc 0,510 MW, stawki taryfowe, wzory miesięczne prognozy oraz sumy roczne.</p>
+      <ul><li>Brak ostrzeżeń i błędów.</li></ul>
+      <p>Pełny wynik testu: <code>walidacja_mpec.md</code> i <code>walidacja_mpec.json</code>.</p>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap">Wygenerowano lokalnie: 2026-05-23. Dane pomocnicze zapisano w <code>analiza_mpec_data.json</code>.</div>
+</footer>
+</body>
+</html>
